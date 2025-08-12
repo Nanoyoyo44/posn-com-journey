@@ -1,46 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
-int mn=INT_MAX,n;
-vector<pair<int,int>> dp;
-void re(int goal,int sum,int lst,int round){
-    if(!round){
-        // cout << sum << '\n';
-        if(lst==goal){
-            mn=min(mn,sum);
-        }
-        return ;
-    }
-    re(goal,sum+dp[round-1].first,lst|dp[round-1].second,round-1);
-    re(goal,sum,lst,round-1);
-}
+
+const int MM=2<<8;
+int dp[MM+1];
+
 int main(){
-    ios::sync_with_stdio(0);cin.tie(0);
-    int k,ch=1;
+    memset(dp,0x3f,sizeof dp);
+    int n,k;
     cin >> n >> k;
-    ch= (ch<<k)-1;
     for (int i = 0; i < n; i++)
     {
-        int x,b,a=0;
-        cin >> x;
+        int w,list=0;
+        cin >> w;
         for (int j = 0; j < k; j++)
         {
-            cin >> b;
-            a=(a|b)<<1;
+            int t;
+            cin >> t;
+            if(!t) continue;
+            list|=(1<<j);
         }
-        a>>=1;
-        dp.push_back(make_pair(x,a));
-        // cout << a << '\n';
+        dp[list]=min(dp[list],w);
     }
-    re(ch,0,0,n);
-    cout << mn;
-    // cout << "ch" << ch;
+    
+    for (int j = 1; j < 1<<k; j++)
+    {
+        for (int i = 1; i < 1<<k; i++)
+        {
+            dp[i|j]=min(dp[i|j],dp[i]+dp[j]);
+        }
+    }
+    
+    cout << dp[(1<<k) -1];
     return 0;
 }
-/*
-5 3
-10 1 0 1
-30 0 1 1
-5 1 0 0
-4 0 0 1
-150 1 1 1
-*/

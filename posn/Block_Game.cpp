@@ -2,104 +2,88 @@
 using namespace std;
 
 int n,m,score=0;
-char arr[6][6];
-const int dx[5]={0,-1,0,1},dy[5]={1,0,-1,0};
+char maze[6][6];
+bool visited[6][6];
+const int dx[]={-1,1,0,0},dy[]={0,0,-1,1};
 
-bool inbound(int x,int y){
-    if(x<0||x>=n || y<0||y>=m){
-        return 0;
-    }
-    return 1;
+bool inbound(int y,int x){
+    return (y >=0 && y<m && x>=0 && x<n);
 }
 
-void re(int x,int y,char tp){
-    if(!inbound(x,y)||arr[y][x]!=tp){
-        return ;
-    }
-    arr[y][x]='-';
+void dfs(int y,int x,char key){
+    if(!inbound(y,x) || maze[y][x]=='#'|| maze[y][x]=='-'||maze[y][x]!=key)  return ;
+    maze[y][x]='-';
     score+=5;
     for (int i = 0; i < 4; i++)
     {
-        re(x+dx[i],y+dy[i],tp);
+        dfs(y+dy[i],x+dx[i],key);
     }
+}
+
+bool check(int y,int x){
+    char key=maze[y][x];
+    for (int i = 0; i < 4; i++)
+    {
+        if(maze[y+dy[i]][x+dx[i]]==key) return true;
+    }
+    return false;
+}
+
+void dropdown(int y, int x){
+    if(!inbound(y+1,x) || maze[y+1][x]!='-'){
+        if(check(y,x)){
+            dfs(y,x,maze[y][x]);
+        }else{
+            score-=5;
+        }
+        return;
+    }
+    maze[y+1][x]=maze[y][x];
+    maze[y][x]='-'; 
+    dropdown(y+1,x);
 }
 
 int main(){
     ios::sync_with_stdio(0);cin.tie(0);
-    cin >> m >> n;
+    int order;
+    cin >> m >>n;
     for (int i = 0; i < m; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            cin >> arr[i][j];
+            cin >> maze[i][j];
         }
     }
-    int round;
-    cin >> round;
-    for(int i=0;i<round;i++)
+    cin >> order;
+    while (order--)
     {
-        char di;
-        int py,px,ppx,ppy;
-        cin >> py >> px >> di;
-        ppx=px;
-        ppy=py;
+        int posy,posx;
+        char di;    
+        cin >> posy >> posx >> di;
         if(di=='L'){
-            if(inbound(px-1,py)&&arr[py][px-1]=='-'){
-                swap(arr[py][px],arr[py][px-1]);
-                px--;
-                while (inbound(px,py+1)&&arr[py+1][px]=='-')
-                {
-                    swap(arr[py][px],arr[py+1][px]);
-                    py++;
-                }   
-                re(px,py,arr[py][px]);
-                int i=0;
-                while(inbound(ppx,ppy+i)&&arr[ppy+i+1][ppx]!='#'){
-                    while (inbound(ppx,ppy+i+1)&&arr[ppy+i+1][ppx]=='-')
-                    {
-                        swap(arr[ppy+i][ppx],arr[ppy+i+1][ppx]);
-                        ppy++;
-                    }
-                    i++;
-                }
-            }else{
-                score-=5;
-            }
+            if(!inbound(posy,posx-1) || maze[posy][posx-1]=='#') continue;
+            maze[posy][posx-1]=maze[posy][posx];
+            maze[posy][posx]='-';
+            dropdown(posy,posx-1);
+            while(--posy>=0) dropdown(posy,posx);
         }else{
-            if(inbound(px+1,py)&&arr[py][px+1]=='-'){
-                swap(arr[py][px],arr[py][px+1]);
-                px++;
-                while (inbound(px,py+1)&&arr[py+1][px]=='-')
-                {
-                    swap(arr[py][px],arr[py+1][px]);
-                    py++;
-                }   
-                re(px,py,arr[py][px]);
-                int i=0;
-                while(inbound(ppx,ppy+i)&&arr[ppy+i+1][ppx]!='#'){
-                    while (inbound(ppx,ppy+i+1)&&arr[ppy+i+1][ppx]=='-')
-                    {
-                        swap(arr[ppy+i][ppx],arr[ppy+i+1][ppx]);
-                        ppy++;
-                    }
-                    i++;
-                }
-            }else{
-                score-=5;
-            }
+            if(!inbound(posy,posx+1) || maze[posy][posx+1]=='#') continue;
+            maze[posy][posx+1]=maze[posy][posx];
+            maze[posy][posx]='-';
+            dropdown(posy,posx+1);
+            while(--posy>=0) dropdown(posy,posx);
         }
-        // cout << arr[py][px]<<'\n';
-    }
-    cout << score << '\n';
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j < n; j++)
+        for (int i = 0; i < m; i++)
         {
-            cout << arr[i][j]<<" ";
+            for (int j = 0; j < n; j++)
+            {
+                cout << maze[i][j] << " ";
+            }
+            cout << '\n';
         }
-        cout << '\n';
+        cout << "======\n";
+    cout << score << '\n';
     }
-    
     return 0;
 }
 /*
@@ -111,6 +95,7 @@ int main(){
 2
 1 3 L
 0 1 R
+
 
 5 5
 # A - B #
@@ -124,3 +109,5 @@ int main(){
 0 1 R
 
 */
+
+// abcdefghijklmnopqrstuvwxyz
