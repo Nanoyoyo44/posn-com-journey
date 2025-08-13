@@ -14,8 +14,8 @@ void drop(int y,int x){
         maze[y+1][x]='#';
         maze[y][x]='.';
         y++;
+        //hi
     }
-    
 }
 
 int main(){
